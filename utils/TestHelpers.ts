@@ -5,7 +5,10 @@
 
 import { APIResponse, Page, expect } from '@playwright/test';
 import { Car } from '../models/Car';
-
+import { Estado } from '../models/Estado';
+import { JSDOM } from 'jsdom';
+import { CarPage } from '../pages/CarPage.js';
+import { AutoFormData } from '../data/AutoFormDataProvider.js';
 export class TestHelpers {
   /**
    * Wait for a specific amount of time
@@ -50,6 +53,17 @@ export class TestHelpers {
   }
 
   /**
+   * Extract auto ID from the current page URL
+   * Extracts the ID from URLs like /Autos/Modificar/123 or /Autos/Editar/123
+   * @param page - The Playwright page object
+   * @returns The auto ID as a string, or empty string if not found
+   */
+  static getAutoIdFromUrl(page: Page): string {
+    const url = page.url();
+    return url.split('/').pop() || '';
+  }
+
+  /**
    * Verify that an auto was saved by checking if the chasis number appears in the UI
    * @param page - The Playwright page object
    * @param chasisNumber - The chasis number to verify
@@ -80,8 +94,17 @@ export class TestHelpers {
   static async getJsonFromHtmlResponse(response: APIResponse): Promise<Car> {
     const bodyBuffer = await response.body();
     const html = bodyBuffer.toString('utf-8');
-    console.log('xxx____html value', html);
     return this.parseCarFromHtml(html);
+  }
+
+  static getValueByLabel(document: Document, labelText: string): string | undefined  {
+    
+    const labels = [...document.querySelectorAll('label')];
+    const label = labels.find(l => l.textContent?.trim() === labelText);
+    if (!label) return undefined;
+
+    const input = document.querySelector(`#${label.htmlFor}`);
+    return (input as HTMLInputElement)?.value;
   }
 
   /**
@@ -214,7 +237,7 @@ export class TestHelpers {
     if (estadoStr) {
       const estadoLower = estadoStr.toLowerCase().trim();
       if (estadoLower === 'nuevo' || estadoLower === 'usado') {
-        car.estado = estadoLower === 'nuevo' ? 'Nuevo' : 'Usado';
+        car.estado = estadoLower === 'nuevo' ? Estado.Nuevo : Estado.Usado;
       }
     }
 
@@ -233,6 +256,23 @@ export class TestHelpers {
       }
     }
 
+    return car;
+  }
+
+
+  static async parseAutoCreado(page: Page, carPage: CarPage, response: APIResponse, expectedData: AutoFormData): Promise<Car> {
+    await page.setContent(await response.text());
+
+    let car = new Car();
+    car.marca = await carPage.getMarca();
+    car.modelo = await carPage.getModelo();
+    car.numeroChasis = await carPage.getNumeroChasis();
+    car.año = await carPage.getAnio();
+    car.precio = await carPage.getPrecio();
+    car.color = await carPage.getColor();
+    const estadoStr = await carPage.getEstado();
+    car.estado = estadoStr === 'Nuevo' ? Estado.Nuevo : estadoStr === 'Usado' ? Estado.Usado : undefined;
+    
     return car;
   }
 }

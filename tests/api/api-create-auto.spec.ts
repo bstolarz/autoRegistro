@@ -1,9 +1,10 @@
-import { test, expect } from '@playwright/test';
 import { AutoApiClient } from '../../api/AutoApiClient';
 import { AutoFormDataProvider } from '../../data/AutoFormDataProvider';
 import { TestHelpers } from '../../utils/TestHelpers';
 import { ListadoPage } from '../../pages/ListadoPage';
 import { CrearAutoPage } from '../../pages/CrearAutoPage';
+import { CarPage } from '../../pages/CarPage.js';
+import { test, expect } from '../../fixture/carPageFixture.js';
 
 /**
  * API Tests for Auto endpoints
@@ -21,21 +22,16 @@ test.describe('Auto API Tests', () => {
     await createAutoPage.goto();
   });
 
-  test('Puedo crear un auto via API con datos validos', async ({ page, request }) => {
+  test('Puedo crear un auto via API con datos validos', async ({ page, request, carPage }) => {
     const testData = AutoFormDataProvider.getValidData();
-    // Fill all form fields
     await createAutoPage.fillForm(testData);
-    // Submit the form
     await createAutoPage.submitForm();
-    //Consultar por API que el dato haya modificado y se haya guardado correctamente
     const autoId = await ListadoPage.getAutoIdByChasis(page, testData.numeroChasis!);
-    console.log('xxx____autoId value', autoId);
-    // Consultar por API que el Auto se haya guardado correctamente
-    const apiClient = new AutoApiClient(request);
-    const responseGet = await apiClient.getAutoById(autoId);
-    // Assertions
-    const isSaved = await apiClient.validateAutoCreado(responseGet, testData);
-    expect(isSaved, 'Auto no guardado').toBeTruthy();
+    const responseGet = await AutoApiClient.getAutoById(request, autoId);
+    await page.setContent(await responseGet.text());
+    expect(await carPage.getMarca(), 'Marca no guardada').toBe(testData.marca);
+    expect(await carPage.getModelo(), 'Modelo no guardado').toBe(testData.modelo);
+    expect(await carPage.getNumeroChasis(), 'Número de Chasis no guardado').toBe(testData.numeroChasis);
   });
 });
 

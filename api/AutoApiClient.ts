@@ -1,6 +1,7 @@
-import { APIRequestContext, APIResponse } from '@playwright/test';
+import { APIRequestContext, APIResponse, expect } from '@playwright/test';
 import { AutoFormData } from '../data/AutoFormDataProvider';
 import { TestHelpers } from '../utils/TestHelpers';
+import { Page } from '@playwright/test';
 
 /**
  * API Client for Auto-related endpoints
@@ -77,10 +78,10 @@ export class AutoApiClient {
   }
 
   /**
-   * Get auto by ID
+   * Get auto by ID (static method)
    */
-  async getAutoById(id: string | number | null): Promise<APIResponse> {
-    return await this.request.get(`${this.baseURL}/Autos/Detalle/${id}`);
+  static async getAutoById(request: APIRequestContext, id: string | number | null, baseURL: string = 'https://frontend.wildar.dev'): Promise<APIResponse> {
+    return await request.get(`${baseURL}/Autos/Detalle/${id}`);
   }
 
   /**
@@ -107,33 +108,6 @@ export class AutoApiClient {
    */
   async deleteAuto(id: string | number): Promise<APIResponse> {
     return await this.request.delete(`${this.baseURL}/api/Autos/${id}`);
-  }
-
-  /**
-   * Validate auto creation response
-   */
-  async validateAutoCreado(response: APIResponse, expectedData: AutoFormData): Promise<boolean> {
-    if (response.status() !== 200 && response.status() !== 201) {
-      console.log('xxx____response.status()', response.status());
-      return false;
-    }
-    const responseBody = await TestHelpers.getJsonFromHtmlResponse(response);
-    // Validate response contains expected data
-    if (expectedData.marca && responseBody.marca !== expectedData.marca) {
-      console.log('xxx____responseBody.marca_A');
-      return false;
-    }
-    if (expectedData.modelo && responseBody.modelo !== expectedData.modelo) {
-      console.log('xxx____responseBody.marca_B');
-      return false;
-    }
-    if (expectedData.numeroChasis && responseBody.numeroChasis !== expectedData.numeroChasis) {
-      console.log('xxx____responseBody.numeroChasis', responseBody.numeroChasis);
-      console.log('xxx____expectedData.numeroChasis', expectedData.numeroChasis);
-      return false;
-    }
-
-    return true;
   }
 }
 

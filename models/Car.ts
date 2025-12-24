@@ -2,6 +2,8 @@
  * Car Model
  * Represents a car entity with all its properties
  */
+import { Estado } from './Estado';
+
 export class Car {
   id?: string | number;
   marca?: string;
@@ -10,7 +12,7 @@ export class Car {
   año?: number;
   precio?: number;
   color?: string;
-  estado?: 'Nuevo' | 'Usado';
+  estado?: Estado;
 
   constructor(data?: Partial<Car>) {
     if (data) {
