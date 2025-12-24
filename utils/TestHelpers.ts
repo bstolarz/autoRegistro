@@ -191,7 +191,6 @@ export class TestHelpers {
     }
     
     if (añoStr) {
-      console.log('xxx____añoStr', añoStr);
       // Parse year: remove all non-digit characters and parse as integer
       const añoNum = parseInt(añoStr.replace(/\D/g, ''));
       car.año = isNaN(añoNum) ? undefined : añoNum;
@@ -201,7 +200,6 @@ export class TestHelpers {
       if (añoMatch) {
         const index = html.indexOf(añoMatch[0]);
         const snippet = html.substring(Math.max(0, index - 100), Math.min(html.length, index + 200));
-        console.log('HTML snippet around año label:', snippet);
       }
     }
 

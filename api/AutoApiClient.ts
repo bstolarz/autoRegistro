@@ -84,30 +84,5 @@ export class AutoApiClient {
     return await request.get(`${baseURL}/Autos/Detalle/${id}`);
   }
 
-  /**
-   * Get all autos
-   */
-  async getAllAutos(): Promise<APIResponse> {
-    return await this.request.get(`${this.baseURL}/api/Autos`);
-  }
-
-  /**
-   * Update an auto
-   */
-  async updateAuto(id: string | number, data: Partial<AutoFormData>): Promise<APIResponse> {
-    return await this.request.put(`${this.baseURL}/api/Autos/${id}`, {
-      data,
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
-  }
-
-  /**
-   * Delete an auto
-   */
-  async deleteAuto(id: string | number): Promise<APIResponse> {
-    return await this.request.delete(`${this.baseURL}/api/Autos/${id}`);
-  }
 }
 
