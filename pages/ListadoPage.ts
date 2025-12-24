@@ -1,14 +1,26 @@
-import { Page, Locator } from '@playwright/test';
+import { Page } from '@playwright/test';
+import { BaseAutoFormPage } from './BaseAutoFormPage';
 
-export class ListadoPage {
-  private page: Page;
+export class ListadoPage extends BaseAutoFormPage {
 
   constructor(page: Page) {
-    this.page = page;
+    super(page);
   }
 
   async goto(): Promise<void> {
     await this.page.goto('/Autos');
+  }
+
+  /**
+   * Helper method to get auto ID from listado page by chasis number
+   * Encapsulates the creation of ListadoPage and retrieval of auto ID
+   * @param page - The Playwright page object
+   * @param chasisNumber - The chasis number to search for
+   * @returns The auto ID or null if not found
+   */
+  static async getAutoIdByChasis(page: Page, chasisNumber: string): Promise<string | null> {
+    const listadoPage = new ListadoPage(page);
+    return await listadoPage.getAutoId(chasisNumber);
   }
 
   /**

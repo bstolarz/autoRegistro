@@ -3,7 +3,7 @@
  * Common utility functions for tests
  */
 
-import { APIResponse } from '@playwright/test';
+import { APIResponse, Page, expect } from '@playwright/test';
 import { Car } from '../models/Car';
 
 export class TestHelpers {
@@ -50,6 +50,18 @@ export class TestHelpers {
   }
 
   /**
+   * Verify that an auto was saved by checking if the chasis number appears in the UI
+   * @param page - The Playwright page object
+   * @param chasisNumber - The chasis number to verify
+   * @param errorMessage - Optional custom error message for the assertion
+   */
+  static async verifyAutoSavedInUI(page: Page, chasisNumber: string, errorMessage: string = 'Auto no guardado'): Promise<void> {
+    const chasisLocator = page.getByText(chasisNumber);
+    const chasisText = await chasisLocator.textContent();
+    expect(chasisText, errorMessage).toContain(chasisNumber);
+  }
+
+  /**
    * Extract error message from response
    */
   static async extractErrorMessage(response: { status: () => number; statusText: () => string; json: () => Promise<any> }): Promise<string> {
@@ -68,7 +80,7 @@ export class TestHelpers {
   static async getJsonFromHtmlResponse(response: APIResponse): Promise<Car> {
     const bodyBuffer = await response.body();
     const html = bodyBuffer.toString('utf-8');
-    
+    console.log('xxx____html value', html);
     return this.parseCarFromHtml(html);
   }
 
@@ -147,7 +159,8 @@ export class TestHelpers {
     car.modelo = extractByLabel(/Modelo/i, html);
 
     // Extract numeroChasis (try multiple label variations)
-    car.numeroChasis = extractByLabel(/N[úu]mero\s+de\s+Chasis|Chasis|Número\s+Chasis/i, html) ||
+    // Note: Handle both literal characters (ú) and HTML entities (&#xFA; or &#250;)
+    car.numeroChasis = extractByLabel(/N(?:[úu]|&#xFA;|&#250;|&#xfa;)mero\s+de\s+Chasis|Chasis|Número\s+Chasis/i, html) ||
                        extractByLabel(/NumeroChasis/i, html);
 
     // Extract año (year) - try multiple approaches
