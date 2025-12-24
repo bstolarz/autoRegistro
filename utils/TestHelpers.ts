@@ -6,7 +6,6 @@
 import { APIResponse, Page, expect } from '@playwright/test';
 import { Car } from '../models/Car';
 import { Estado } from '../models/Estado';
-import { JSDOM } from 'jsdom';
 import { CarPage } from '../pages/CarPage.js';
 import { AutoFormData } from '../data/AutoFormDataProvider.js';
 export class TestHelpers {
@@ -65,9 +64,6 @@ export class TestHelpers {
 
   /**
    * Verify that an auto was saved by checking if the chasis number appears in the UI
-   * @param page - The Playwright page object
-   * @param chasisNumber - The chasis number to verify
-   * @param errorMessage - Optional custom error message for the assertion
    */
   static async verifyAutoSavedInUI(page: Page, chasisNumber: string, errorMessage: string = 'Auto no guardado'): Promise<void> {
     const chasisLocator = page.getByText(chasisNumber);
@@ -89,7 +85,6 @@ export class TestHelpers {
 
   /**
    * Parse HTML response and extract car details into a Car model
-   * Supports common HTML patterns: labels with values, table rows, definition lists
    */
   static async getJsonFromHtmlResponse(response: APIResponse): Promise<Car> {
     const bodyBuffer = await response.body();
@@ -97,19 +92,8 @@ export class TestHelpers {
     return this.parseCarFromHtml(html);
   }
 
-  static getValueByLabel(document: Document, labelText: string): string | undefined  {
-    
-    const labels = [...document.querySelectorAll('label')];
-    const label = labels.find(l => l.textContent?.trim() === labelText);
-    if (!label) return undefined;
-
-    const input = document.querySelector(`#${label.htmlFor}`);
-    return (input as HTMLInputElement)?.value;
-  }
-
   /**
    * Parse HTML string and extract car details into a Car model
-   * Handles various HTML structures commonly used in detail pages
    */
   static parseCarFromHtml(html: string): Car {
     const car = new Car();
@@ -182,7 +166,6 @@ export class TestHelpers {
     car.modelo = extractByLabel(/Modelo/i, html);
 
     // Extract numeroChasis (try multiple label variations)
-    // Note: Handle both literal characters (ú) and HTML entities (&#xFA; or &#250;)
     car.numeroChasis = extractByLabel(/N(?:[úu]|&#xFA;|&#250;|&#xfa;)mero\s+de\s+Chasis|Chasis|Número\s+Chasis/i, html) ||
                        extractByLabel(/NumeroChasis/i, html);
 

@@ -16,7 +16,7 @@ test.describe('Agregar Auto - UI Tests', () => {
     await autoFormPage.goto();
   });
 
-  test.only('Agregar un auto', async ( {page, request} ) => {
+  test('Agregar un auto', async ( {page, request} ) => {
     const testData = AutoFormDataProvider.getValidData();
     await autoFormPage.fillForm(testData);
     await autoFormPage.submitForm();
