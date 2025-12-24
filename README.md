@@ -60,14 +60,10 @@ npm run report
   - Verify auto created and saved correctly
   - HTML response parsing and validation
 
-## Configuration
+## Configuracion
 
-The framework is configured to test:
-- **Base URL**: https://frontend.wildar.dev
-- **Test URL**: https://frontend.wildar.dev/Autos/Crear
+URLs del framework:
+- **API URL**: https://frontend.wildar.dev
+- **Web URL**: https://frontend.wildar.dev
 
-
-## License
-
-ISC
 
